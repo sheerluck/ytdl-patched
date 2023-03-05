@@ -19,12 +19,12 @@ except ImportError:
 
 from devscripts.utils import read_file, read_version
 
-VERSION = read_version()
+VERSION = read_version('yt_dlp_nao/version.py')
 
 DESCRIPTION = 'A youtube-dl fork with additional features and patches'
 
 LONG_DESCRIPTION = '\n\n'.join((
-    'Official repository: <https://github.com/yt-dlp/yt-dlp>',
+    'Official repository: <https://github.com/ytdl-patched/ytdl-patched>',
     '**PS**: Some links in this document will not work since this is a copy of the README.md from Github',
     read_file('README.md')))
 
@@ -35,13 +35,6 @@ def packages():
     if setuptools_available:
         return find_packages(exclude=('youtube_dl', 'youtube_dlc', 'test', 'ytdlp_plugins', 'devscripts'))
 
-    return [
-        'yt_dlp', 'yt_dlp.extractor',
-        'yt_dlp.compat', 'yt_dlp.downloader',
-        'yt_dlp.websocket', 'yt_dlp.postprocessor',
-        'yt_dlp.extractor.peertube', 'yt_dlp.extractor.misskey',
-        'yt_dlp.extractor.mastodon',
-    ]
 
 
 def py2exe_params():
@@ -51,17 +44,18 @@ def py2exe_params():
 
     return {
         'console': [{
-            'script': './yt_dlp/__main__.py',
-            'dest_base': 'ytdl-patched',
+            'script': './yt_dlp_nao/__main__.py',
+            'dest_base': 'yt-dlp-nao',
         }],
         'version_info': {
             'version': VERSION,
             'description': DESCRIPTION,
             'comments': LONG_DESCRIPTION.split('\n')[0],
-            'product_name': 'ytdl-patched',
+            'product_name': 'yt-dlp-nao',
             'product_version': VERSION,
         },
         'options': {
+
             'bundle_files': 0,
             'compressed': 1,
             'optimize': 2,
@@ -69,7 +63,7 @@ def py2exe_params():
             'excludes': ['Crypto', 'Cryptodome'],  # py2exe cannot import Crypto
             'dll_excludes': ['w9xpopen.exe', 'crypt32.dll'],
             # Modules that are only imported dynamically must be added here
-            'includes': ['yt_dlp.compat._legacy'],
+            'includes': ['yt_dlp_nao.compat._legacy'],
         },
         'zipfile': None,
     }
@@ -77,11 +71,11 @@ def py2exe_params():
 
 def build_params():
     files_spec = [
-        ('share/bash-completion/completions', ['completions/bash/ytdl-patched']),
-        ('share/zsh/site-functions', ['completions/zsh/_ytdl-patched']),
-        ('share/fish/vendor_completions.d', ['completions/fish/ytdl-patched.fish']),
-        ('share/doc/yt_dlp', ['README.txt']),
-        ('share/man/man1', ['ytdl-patched.1'])
+        ('share/bash-completion/completions', ['completions/bash/yt-dlp-nao']),
+        ('share/zsh/site-functions', ['completions/zsh/_yt-dlp-nao']),
+        ('share/fish/vendor_completions.d', ['completions/fish/yt-dlp-nao.fish']),
+        ('share/doc/yt_dlp_nao', ['README.txt']),
+        ('share/man/man1', ['yt-dlp-nao.1'])
     ]
     data_files = []
     for dirname, files in files_spec:
@@ -97,11 +91,10 @@ def build_params():
 
     if setuptools_available:
         params['entry_points'] = {
-            'console_scripts': ['ytdl-patched = yt_dlp:main'],
-            'pyinstaller40': ['hook-dirs = yt_dlp.__pyinstaller:get_hook_dirs'],
+            'console_scripts': ['yt_dlp_nao = yt_dlp_nao:main']
         }
     else:
-        params['scripts'] = ['ytdl-patched']
+        params['scripts'] = ['yt_dlp_nao']
     return params
 
 
@@ -138,14 +131,14 @@ def main():
         params = build_params()
 
     setup(
-        name='yt-dlp',
+        name='yt-dlp-nao',
         version=VERSION,
         maintainer='pukkandan',
         maintainer_email='pukkandan.ytdlp@gmail.com',
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
         long_description_content_type='text/markdown',
-        url='https://github.com/yt-dlp/yt-dlp',
+        url='https://github.com/ytdl-patched/ytdl-patched',
         packages=packages(),
         install_requires=REQUIREMENTS,
         python_requires='>=3.7',
@@ -174,13 +167,6 @@ def main():
         cmdclass={'build_lazy_extractors': build_lazy_extractors},
         **params
     )
-    if os.getenv('YTDL_PATCHED_INSTALLED_VIA_HOMEBREW') == 'yes':
-        # flag this installation as homebrew cellar
-        with open('yt_dlp/build_config.py', 'a') as w:
-            w.write('''\
-# Appended by ./setup.py
-is_brew = True
-''')
 
 
 main()
